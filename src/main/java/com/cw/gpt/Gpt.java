@@ -1,5 +1,7 @@
 package com.cw.gpt;
 
+import com.github.britooo.looca.api.core.Looca;
+import com.github.britooo.looca.api.group.processos.Processo;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -9,10 +11,12 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.util.List;
 
 public class Gpt {
+
     private static String KEY = "";
-    private static String PROMPT = "Responda somente com 'sim' ou 'nao' caso o nome deste processo seja um jogo: ";
+    private static String PROMPT = "Responda somente com 'sim' caso o nome deste processo nao pertenca ao windows 10 e seja um jogo/game: "; // Não pode ter acentos nem caracter especial
     private static long MAX_TOKENS = 100;
     private static float TEMPERATURE = 1;
     private static String MODEL = "gpt-3.5-turbo";

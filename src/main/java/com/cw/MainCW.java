@@ -10,13 +10,16 @@ import com.github.britooo.looca.api.core.Looca;
 import com.github.britooo.looca.api.group.processos.ProcessoGrupo;
 import com.github.britooo.looca.api.group.processos.Processo;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 import java.util.Timer;
 
 public class MainCW {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException, IOException {
         // Buscar hostname da máquina atual
         String hostname = new Looca().getRede().getParametros().getHostName();
 
@@ -97,17 +100,41 @@ public class MainCW {
         } while (continuar);
 
         /* Chat GPT */
+        List<String> listaNativos = new ArrayList<>();
+        File whiteList = new File("C:\\Users\\lucas\\Desktop\\CWatching\\src\\main\\java\\com\\cw\\gpt\\Whitelist.txt");
+        Scanner lerWhiteList = new Scanner(whiteList);
 
+        while(lerWhiteList.hasNextLine()){
+            listaNativos.add(lerWhiteList.nextLine()); // Vamos ignorar o processo caso ele seja nativo do windows para não consumir demais a API
+        }
+
+        Gpt chat = new Gpt();
         Looca LoocaProcess = new Looca();
         List<Processo> listaProcessos = LoocaProcess.getGrupoDeProcessos().getProcessos();
 
-        String url = "https://api.openai.com/v1/chat/completions";
-        String apiKey = "";
-        String model = "gpt-3.5-turbo";
 
-        Gpt chat = new Gpt();
+        while(true){
+            String res="";
+            for(Processo p : listaProcessos){
+                Boolean processoNativo = false;
 
+                for(String pn : listaNativos){
+                    if(p.getNome().equalsIgnoreCase(pn)){ // Se entrar no IF não é processo nativo
+                        processoNativo = true;
+                    }
+                }
+                if(!processoNativo){
+                    res = chat.verificarProcesso(p.getNome());
+                    System.out.println(p.getNome());
+                    System.out.println(res);
+                    if(res.equalsIgnoreCase("sim")){
+                        System.out.println("Finalizando o seguinte processo: "+p.getNome());
+                        Runtime.getRuntime().exec("taskkill /F /IM " + p.getNome()+".exe");
+                    }
+                    Thread.sleep(10000);
+                }
 
-
+        }
+    }
     }
 }
